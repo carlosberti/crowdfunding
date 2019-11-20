@@ -20,6 +20,11 @@
     "vue-template-compiler": "^2.6.6",
     "vuetify-loader": "^1.0.5"
   },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
   "browserslist": [
     "> 1%",
     "last 2 versions",
