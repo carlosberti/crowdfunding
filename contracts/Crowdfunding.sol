@@ -5,7 +5,7 @@ contract Crowdfunding {
     using SafeMath for uint256;
 
     Campaign[] private campaign;
-
+    
     // Evento para criação de nova campanha
     event CampaignStarted(
         address coAddress,
@@ -59,6 +59,10 @@ contract Campaign
 
     address payable public owner;
     
+            
+    address Carlos;
+    address Gabriel;
+    
     string public title;
     string public description;
     
@@ -105,12 +109,17 @@ contract Campaign
     {
         owner = campaignOwner;
         
+        Carlos = 0x5600979d097F741c573d46EDb9cABfC75bB566AF;
+        Gabriel = 0x7FFf406d6CA0e40d02112509E2472cB780fCbf88;
+        
         title = campaignTitle;
         description = campaignDesc;
         
         goal = goalAmount;
         campaignDeadline = fundRaisingDeadline;
         currentBalance = 0;
+        
+        votingApproved = false;
         
         voteCount = 0;
     }
@@ -131,6 +140,7 @@ contract Campaign
      function vote() public
      {
          require(votingApproved == false);
+         require(msg.sender == Carlos || msg.sender == Gabriel);
          voteCount += 1;
          if(voteCount == 3)
          {
@@ -226,7 +236,8 @@ contract Campaign
         uint256 deadline,
         State currentState,
         
-        bool approved
+        bool approved,
+        uint256 voteCounter
 
     ) {
         campaignOwner = owner;
@@ -237,5 +248,6 @@ contract Campaign
         currentAmount = currentBalance;
         goalAmount = goal;
         approved = votingApproved;
+        voteCounter = voteCount;
     }
 }
