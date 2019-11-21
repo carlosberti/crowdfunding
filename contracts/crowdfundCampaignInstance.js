@@ -79,6 +79,20 @@ const abi =
 		"type": "function"
 	},
 	{
+		"constant": false,
+		"inputs": [],
+		"name": "getRefundFundRaising",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"constant": true,
 		"inputs": [],
 		"name": "owner",

@@ -163,7 +163,7 @@
                   <v-btn
                     class="mt-3"
                     color="amber darken-1 white--text"
-                    @click="getRefund(index)"
+                    @click="getRefundFundRaising(index)"
                     :loading="campaign.isLoading"
                   >
                     Get refund
@@ -276,6 +276,14 @@ export default {
     getRefund(index) {
       this.campaignData[index].isLoading = true;
       this.campaignData[index].contract.methods.getRefund().send({
+        from: this.account,
+      }).then(() => {
+        this.campaignData[index].isLoading = false;
+      });
+    },
+    getRefundFundRaising(index) {
+      this.campaignData[index].isLoading = true;
+      this.campaignData[index].contract.methods.getRefundFundRaising().send({
         from: this.account,
       }).then(() => {
         this.campaignData[index].isLoading = false;

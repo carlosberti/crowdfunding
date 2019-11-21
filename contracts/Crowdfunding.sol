@@ -177,6 +177,27 @@ contract Campaign
         return true;
     }
 
+    function getRefundFundRaising() public inState(State.Fundraising) returns (bool)
+    {
+        require(contributions[msg.sender] > 0);
+        
+        uint256 amountToRefund = contributions[msg.sender];
+        contributions[msg.sender] = 0;
+
+        if (msg.sender.send(amountToRefund)) 
+        {
+            currentBalance = currentBalance.sub(amountToRefund);
+            emit ownerPaid(msg.sender);
+            return false;
+        } else 
+        {
+            contributions[msg.sender] = amountToRefund;
+            
+        }
+
+        return true;
+    }
+
     function getDetails() public view returns 
     (
         address payable campaignOwner,
