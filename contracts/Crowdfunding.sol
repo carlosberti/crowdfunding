@@ -14,8 +14,8 @@ contract Crowdfunding {
         uint256 deadline,
         uint256 goalAmount,
      
-        string projectTitle,
-        string projectDesc
+        string campaignTitle,
+        string campaignDesc
         
     );
 
@@ -92,8 +92,8 @@ contract Campaign
     (
         address payable campaignOwner,
         
-        string memory projectTitle,
-        string memory projectDesc,
+        string memory campaignTitle,
+        string memory campaignDesc,
         
         uint fundRaisingDeadline,
         uint goalAmount
@@ -102,8 +102,8 @@ contract Campaign
     {
         owner = campaignOwner;
         
-        title = projectTitle;
-        description = projectDesc;
+        title = campaignTitle;
+        description = campaignDesc;
         
         goal = goalAmount;
         campaignDeadline = fundRaisingDeadline;
@@ -181,8 +181,8 @@ contract Campaign
     (
         address payable campaignOwner,
         
-        string memory projectTitle,
-        string memory projectDesc,
+        string memory campaignTitle,
+        string memory campaignDesc,
         
         uint256 currentAmount,
         uint256 goalAmount,
@@ -192,8 +192,8 @@ contract Campaign
 
     ) {
         campaignOwner = owner;
-        projectTitle = title;
-        projectDesc = description;
+        campaignTitle = title;
+        campaignDesc = description;
         deadline = campaignDeadline;
         currentState = state;
         currentAmount = currentBalance;
