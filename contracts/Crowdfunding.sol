@@ -1,189 +1,202 @@
-// We will be using Solidity version 0.5.4
 pragma solidity 0.5.4;
-// Importing OpenZeppelin's SafeMath Implementation
 import 'https://github.com/OpenZeppelin/openzeppelin-solidity/contracts/math/SafeMath.sol';
-
 
 contract Crowdfunding {
     using SafeMath for uint256;
 
-    // List of existing projects
-    Project[] private projects;
+    Campaign[] private campaign;
 
-    // Event that will be emitted whenever a new project is started
-    event ProjectStarted(
-        address contractAddress,
-        address projectStarter,
-        string projectTitle,
-        string projectDesc,
+    // Evento para criação de nova campanha
+    event CampaignStarted(
+        address coAddress,
+        address ownerAdress,
+        
         uint256 deadline,
-        uint256 goalAmount
+        uint256 goalAmount,
+     
+        string projectTitle,
+        string projectDesc
+        
     );
 
-    /** @dev Function to start a new project.
-      * @param title Title of the project to be created
-      * @param description Brief description about the project
-      * @param durationInDays Project deadline in days
-      * @param amountToRaise Project goal in wei
-      */
-    function startProject(
+    function startCampaign(
         string calldata title,
         string calldata description,
         uint durationInDays,
         uint amountToRaise
-    ) external {
+    ) external 
+    {
         uint raiseUntil = now.add(durationInDays.mul(1 days));
-        Project newProject = new Project(msg.sender, title, description, raiseUntil, amountToRaise);
-        projects.push(newProject);
-        emit ProjectStarted(
-            address(newProject),
+        Campaign newCampaign = new Campaign(msg.sender, title, description, raiseUntil, amountToRaise);
+        campaign.push(newCampaign);
+        emit CampaignStarted(
+            address(newCampaign),
             msg.sender,
-            title,
-            description,
             raiseUntil,
-            amountToRaise
+            amountToRaise,
+            title,
+            description
         );
     }                                                                                                                                   
 
-    /** @dev Function to get all projects' contract addresses.
-      * @return A list of all projects' contract addreses
-      */
-    function returnAllProjects() external view returns(Project[] memory){
-        return projects;
+    //Retornar campanhas existentes
+    function returnAllCampaigns() external view returns(Campaign[] memory)
+    {
+        return campaign;
     }
 }
 
 
-contract Project {
+contract Campaign 
+    {
     using SafeMath for uint256;
-    
-    // Data structures
-    enum State {
+    enum State 
+    {
         Fundraising,
         Expired,
-        Successful
+        Complete
     }
 
-    // State variables
-    address payable public creator;
-    uint public amountGoal; // required to reach at least this much, else everyone gets refund
-    uint public completeAt;
-    uint256 public currentBalance;
-    uint public raiseBy;
+    address payable public owner;
+    
     string public title;
     string public description;
-    State public state = State.Fundraising; // initialize on create
+    
+    uint256 public currentBalance;
+    uint public goal;
+ 
+    uint public completionDate;
+    uint public campaignDeadline;
+
+    State public state = State.Fundraising;
     mapping (address => uint) public contributions;
 
-    // Event that will be emitted whenever funding will be received
-    event FundingReceived(address contributor, uint amount, uint currentTotal);
-    // Event that will be emitted whenever the project starter has received the funds
-    event CreatorPaid(address recipient);
 
-    // Modifier to check current state
-    modifier inState(State _state) {
+    event FundingReceived(address contributor, uint amount, uint currentTotal);
+    event ownerPaid(address recipient);
+
+
+    modifier inState(State _state)
+    {
         require(state == _state);
         _;
     }
 
-    // Modifier to check if the function caller is the project creator
-    modifier isCreator() {
-        require(msg.sender == creator);
+    modifier isowner() 
+    {
+        require(msg.sender == owner);
         _;
     }
 
     constructor
     (
-        address payable projectStarter,
+        address payable campaignOwner,
+        
         string memory projectTitle,
         string memory projectDesc,
+        
         uint fundRaisingDeadline,
         uint goalAmount
-    ) public {
-        creator = projectStarter;
+        
+    ) public
+    {
+        owner = campaignOwner;
+        
         title = projectTitle;
         description = projectDesc;
-        amountGoal = goalAmount;
-        raiseBy = fundRaisingDeadline;
+        
+        goal = goalAmount;
+        campaignDeadline = fundRaisingDeadline;
         currentBalance = 0;
     }
 
-    /** @dev Function to fund a certain project.
-      */
-    function contribute() external inState(State.Fundraising) payable {
-        require(msg.sender != creator);
+    //Contribuir para a campanha
+    function contribute() external inState(State.Fundraising) payable 
+    {
+        require(msg.sender != owner);
+        
         contributions[msg.sender] = contributions[msg.sender].add(msg.value);
         currentBalance = currentBalance.add(msg.value);
         emit FundingReceived(msg.sender, msg.value, currentBalance);
-        checkIfFundingCompleteOrExpired();
+        
+        checkCompletion();
     }
 
-    /** @dev Function to change the project state depending on conditions.
-      */
-    function checkIfFundingCompleteOrExpired() public {
-        if (currentBalance >= amountGoal) {
-            state = State.Successful;
-            payOut();
-        } else if (now > raiseBy)  {
-            state = State.Expired;
-        }
-        completeAt = now;
-    }
 
-    /** @dev Function to give the received funds to project starter.
-      */
-    function payOut() internal inState(State.Successful) returns (bool) {
+    //Checkout do owner
+    function payOut() internal inState(State.Complete) returns (bool) 
+    {
         uint256 totalRaised = currentBalance;
         currentBalance = 0;
 
-        if (creator.send(totalRaised)) {
-            emit CreatorPaid(creator);
+        if (owner.send(totalRaised)) 
+        {
+            emit ownerPaid(owner);
             return true;
-        } else {
+        } else 
+        {
             currentBalance = totalRaised;
-            state = State.Successful;
+            state = State.Complete;
         }
 
         return false;
     }
+    
+        function checkCompletion() public 
+    {
+        if (currentBalance >= goal)
+        {
+            state = State.Complete;
+            payOut();
+        } 
+        else if (now > campaignDeadline) 
+        {
+            state = State.Expired;
+        }
+        completionDate = now;
+    }
 
-    /** @dev Function to retrieve donated amount when a project expires.
-      */
-    function getRefund() public inState(State.Expired) returns (bool) {
+    
+    //No caso da campanha expirar, refund do valor doado
+    function getRefund() public inState(State.Expired) returns (bool)
+    {
         require(contributions[msg.sender] > 0);
 
         uint amountToRefund = contributions[msg.sender];
         contributions[msg.sender] = 0;
 
-        if (!msg.sender.send(amountToRefund)) {
+        if (!msg.sender.send(amountToRefund))
+        {
             contributions[msg.sender] = amountToRefund;
             return false;
-        } else {
+        } else 
+        {
             currentBalance = currentBalance.sub(amountToRefund);
         }
 
         return true;
     }
 
-    /** @dev Function to get specific information about the project.
-      * @return Returns all the project's details
-      */
     function getDetails() public view returns 
     (
-        address payable projectStarter,
+        address payable campaignOwner,
+        
         string memory projectTitle,
         string memory projectDesc,
-        uint256 deadline,
-        State currentState,
+        
         uint256 currentAmount,
-        uint256 goalAmount
+        uint256 goalAmount,
+        
+        uint256 deadline,
+        State currentState
+
     ) {
-        projectStarter = creator;
+        campaignOwner = owner;
         projectTitle = title;
         projectDesc = description;
-        deadline = raiseBy;
+        deadline = campaignDeadline;
         currentState = state;
         currentAmount = currentBalance;
-        goalAmount = amountGoal;
+        goalAmount = goal;
     }
 }
