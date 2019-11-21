@@ -188,14 +188,14 @@ contract Campaign
         {
             currentBalance = currentBalance.sub(amountToRefund);
             emit ownerPaid(msg.sender);
-            return false;
+            return true;
         } else 
         {
             contributions[msg.sender] = amountToRefund;
             
         }
 
-        return true;
+        return false;
     }
 
     function getDetails() public view returns 

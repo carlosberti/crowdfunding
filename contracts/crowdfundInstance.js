@@ -1,40 +1,73 @@
 /* eslint-disable */
 import web3 from './web3';
 
-const address = '0x377faB4c995eD69f74fFBa360b090B42d79f58Ac';
+const address = '0xF794Aa54df2C32BCd59ab924fb533Af6BD0CBa6a';
 
 const abi = 
 [
 	{
-		"constant": true,
-		"inputs": [],
-		"name": "returnAllCampaigns",
-		"outputs": [
+		"anonymous": false,
+		"inputs": [
 			{
-				"name": "",
-				"type": "address[]"
+				"indexed": false,
+				"internalType": "address",
+				"name": "coAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "ownerAdress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "deadline",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "goalAmount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "campaignTitle",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "campaignDesc",
+				"type": "string"
 			}
 		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
+		"name": "CampaignStarted",
+		"type": "event"
 	},
 	{
 		"constant": false,
 		"inputs": [
 			{
+				"internalType": "string",
 				"name": "title",
 				"type": "string"
 			},
 			{
+				"internalType": "string",
 				"name": "description",
 				"type": "string"
 			},
 			{
+				"internalType": "uint256",
 				"name": "durationInDays",
 				"type": "uint256"
 			},
 			{
+				"internalType": "uint256",
 				"name": "amountToRaise",
 				"type": "uint256"
 			}
@@ -46,41 +79,19 @@ const abi =
 		"type": "function"
 	},
 	{
-		"anonymous": false,
-		"inputs": [
+		"constant": true,
+		"inputs": [],
+		"name": "returnAllCampaigns",
+		"outputs": [
 			{
-				"indexed": false,
-				"name": "coAddress",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "ownerAdress",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "deadline",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"name": "goalAmount",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"name": "campaignTitle",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"name": "campaignDesc",
-				"type": "string"
+				"internalType": "contract Campaign[]",
+				"name": "",
+				"type": "address[]"
 			}
 		],
-		"name": "CampaignStarted",
-		"type": "event"
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
 	}
 ]
 
