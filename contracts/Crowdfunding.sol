@@ -67,7 +67,10 @@ contract Campaign
  
     uint public completionDate;
     uint public campaignDeadline;
-
+    
+    uint public voteCount;
+    bool public votingApproved;
+    
     State public state = State.Fundraising;
     mapping (address => uint) public contributions;
 
@@ -108,7 +111,10 @@ contract Campaign
         goal = goalAmount;
         campaignDeadline = fundRaisingDeadline;
         currentBalance = 0;
+        
+        voteCount = 0;
     }
+
 
     //Contribuir para a campanha
     function contribute() external inState(State.Fundraising) payable 
@@ -122,6 +128,15 @@ contract Campaign
         checkCompletion();
     }
 
+     function vote() public
+     {
+         require(votingApproved == false);
+         voteCount += 1;
+         if(voteCount == 3)
+         {
+             votingApproved = true;
+         }
+     }
 
     //Checkout do owner
     function payOut() internal inState(State.Complete) returns (bool) 
@@ -209,7 +224,9 @@ contract Campaign
         uint256 goalAmount,
         
         uint256 deadline,
-        State currentState
+        State currentState,
+        
+        bool approved
 
     ) {
         campaignOwner = owner;
@@ -219,5 +236,6 @@ contract Campaign
         currentState = state;
         currentAmount = currentBalance;
         goalAmount = goal;
+        approved = votingApproved;
     }
 }
